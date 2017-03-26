@@ -23,8 +23,23 @@ pex_uwsgi_demo
 └── setup.py
 ```
 
+## Develop
 
-## Pack
+### Setup Environment
+
+```
+# create virtualenv
+mkvirtualenv pex-demo
+
+# install `params`, `getenv` required by `amod` and `bmod`
+pip install -r requirements.txt
+
+# install `pex`, `uwsgi` required in development process
+pip install -r dev-requirements.txt
+```
+
+
+### Pack
 
 ```bash
 pex .  --disable-cache \
@@ -34,7 +49,7 @@ pex .  --disable-cache \
 ```
 
 
-## Run
+### Run
 
 **amod**:
 
@@ -42,6 +57,7 @@ pex .  --disable-cache \
 PEX_ENTRY=dist/pex_uwsgi_demo.pex /Users/reorx/.venv/pex-demo/bin/uwsgi \
 	--import loadpex.py \
 	--module amod.wsgi:application \
+	--master --workers 1 \
 	--http :8000
 ```
 
@@ -53,7 +69,36 @@ PEX_ENTRY=dist/pex_uwsgi_demo.pex /Users/reorx/.venv/pex-demo/bin/uwsgi \
 PEX_ENTRY=dist/pex_uwsgi_demo.pex /Users/reorx/.venv/pex-demo/bin/uwsgi \
 	--import loadpex.py \
 	--module bmod.wsgi:application \
-	--http :8000
+	--master --workers 1 \
+	--http :8001
 ```
 
 > $ make run-bmod
+
+## Deploy
+
+### Server Environment
+
+Server requires:
+
+- Python 2.7
+- uWSGI executable
+- `loadpex.py` script
+
+```
+pip install uwsgi
+
+curl https://github.com/reorx/pex_uwsgi_demo/raw/master/loadpex.py -L -o loadpex.py
+```
+
+### Run
+
+Transfer packed `pex_uwsgi_demo.pex` to server, then run:
+
+```
+PEX_ENTRY=pex_uwsgi_demo.pex uwsgi \
+	--import loadpex.py \
+	--module amod.wsgi:application \
+	--master --workers 1 \
+	--http :8000
+```
