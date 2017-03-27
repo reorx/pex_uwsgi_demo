@@ -2,6 +2,6 @@
 
 print 'import bmod'
 
-import getenv
+import torext
 
-print 'bmod requires', getenv
+print 'bmod requires', torext
